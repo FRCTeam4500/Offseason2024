@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,11 +14,13 @@ public abstract class IntakeIO extends SubsystemBase implements Loggable {
             if (RobotBase.isReal()) {
                 instance = null;
             } else {
-                instance = null;
+                instance = new IntakeSim();
             }
         }
         return instance;
     }
+
+    public final Constraints CONSTRAINTS = new Constraints(270, 250);
 
     @Override
     public void log(LogAccess table) {

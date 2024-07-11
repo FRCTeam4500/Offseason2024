@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.swerve.SwerveIO;
 import frc.robot.utilities.EZLogger;
 import frc.robot.utilities.EZLogger.Loggable;
@@ -19,10 +20,12 @@ import frc.robot.utilities.EZLogger.Loggable;
 public class RobotContainer {
     private CommandXboxController xbox;
     private SwerveIO swerve;
+    private IntakeIO intake;
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
         xbox = new CommandXboxController(2);
         swerve = SwerveIO.getInstance();
+        intake = IntakeIO.getInstance();
         swerve.setDefaultCommand(swerve.angleCentric(
             xbox,
             () -> xbox.getRightY() < -0.5,
@@ -41,6 +44,7 @@ public class RobotContainer {
 
     private void configureLogging() {
         EZLogger.put("Swerve", (Loggable) swerve);
+        EZLogger.put("Intake", (Loggable) intake);
     }
 
     private void configureAuto() {
