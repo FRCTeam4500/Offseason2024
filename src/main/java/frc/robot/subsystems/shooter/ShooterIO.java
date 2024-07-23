@@ -38,6 +38,7 @@ public abstract class ShooterIO extends SubsystemBase implements Loggable {
     public abstract Command sourceIntake();
     public abstract Command subwoofer();
     public abstract Command handoff();
+    public abstract Command eject();
     public abstract Command shoot();
     public abstract ShooterState getState();
 
