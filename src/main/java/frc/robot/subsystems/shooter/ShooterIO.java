@@ -34,12 +34,8 @@ public abstract class ShooterIO extends SubsystemBase implements Loggable {
     }
 
     public abstract Command aim(Supplier<Translation2d> translation);
-    public abstract Command amp();
-    public abstract Command sourceIntake();
-    public abstract Command subwoofer();
-    public abstract Command handoff();
-    public abstract Command eject();
-    public abstract Command shoot();
+    public abstract Command load(double speed);
+    public abstract Command shooter(double speed);
     public abstract ShooterState getState();
 
     public static class ShooterState {

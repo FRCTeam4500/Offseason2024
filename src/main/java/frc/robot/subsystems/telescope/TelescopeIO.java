@@ -26,8 +26,7 @@ public abstract class TelescopeIO extends SubsystemBase implements Loggable {
         table.put("Target Extension", state.targetExtension);
     }
 
-    public abstract Command extendAmp();
-    public abstract Command extendShooting();
+    public abstract Command extend(double extension);
     public abstract Command retract();
     public abstract TelescopeState getState();
 
