@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utilities.EZLogger;
@@ -11,6 +13,13 @@ import frc.robot.utilities.EZLogger;
 public class Robot extends TimedRobot {
     public Robot() {
         new RobotContainer();
+    }
+
+    @Override
+    public void teleopInit() {
+        DataLogManager.logNetworkTables(true);
+        DataLogManager.start();
+        DriverStation.startDataLog(DataLogManager.getLog());
     }
 
     @Override
