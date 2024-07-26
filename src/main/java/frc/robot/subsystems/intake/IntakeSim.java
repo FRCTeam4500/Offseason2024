@@ -21,7 +21,7 @@ public class IntakeSim extends IntakeIO {
     @Override
     public Command extend() {
         return Commands.runOnce(() -> {
-                targetState.position = -35;
+                targetState.position = -15;
                 intakeState.targetSpeed = 5;
                 intakeState.currentSpeed = 5;
             }, this

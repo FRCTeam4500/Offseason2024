@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.EZLogger.LogAccess;
@@ -21,6 +22,7 @@ public abstract class IntakeIO extends SubsystemBase implements Loggable {
     }
 
     public final Constraints CONSTRAINTS = new Constraints(270, 250);
+    public final MechanismLigament2d INTAKE_MECH = new MechanismLigament2d("Intake", 0.3, 135);
 
     @Override
     public void log(LogAccess table) {
@@ -29,6 +31,7 @@ public abstract class IntakeIO extends SubsystemBase implements Loggable {
         table.put("Target Tilt", state.targetTilt);
         table.put("Current Speed", state.currentSpeed);
         table.put("Target Speed", state.targetSpeed);
+        INTAKE_MECH.setAngle(state.currentTilt);
     }
 
     public abstract Command extend();
