@@ -15,7 +15,7 @@ public abstract class TelescopeIO extends SubsystemBase implements Loggable {
             if (RobotBase.isReal()) {
                 instance = null;
             } else {
-                instance = null;
+                instance = new TelescopeSim();
             }
         }
         return instance;
