@@ -62,6 +62,10 @@ public class RobotContainer {
         EZLogger.put("Swerve", (Loggable) swerve);
         EZLogger.put("Intake", (Loggable) intake);
         EZLogger.put("Shooter", (Loggable) shooter);
+
+        robotMech.getRoot("Intake", 1, 0.1).append(intake.INTAKE_MECH);
+        robotMech.getRoot("Shooter", 0.3, 0.5).append(shooter.SHOOTER_MECH);
+        EZLogger.put("Robot Mech", robotMech);
     }
 
     private void configureAuto() {
