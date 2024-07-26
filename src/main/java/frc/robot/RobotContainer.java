@@ -54,6 +54,8 @@ public class RobotContainer {
             .onTrue(swerve.targetAngle(Rotation2d.fromDegrees(180)));
         xbox.rightStick().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(-90)));
         xbox.leftBumper().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(90)));
+        xbox.x().onTrue(intake.extend()).onFalse(intake.handoff());
+        xbox.b().whileTrue(shooter.aim(() -> swerve.getState().pose().getTranslation()));
     }
 
     private void configureLogging() {
