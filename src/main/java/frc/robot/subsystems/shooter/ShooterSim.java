@@ -46,7 +46,7 @@ public class ShooterSim extends ShooterIO {
                 -0.5 : 16.5, 5.9
             );
             return ANGLE_MAP.get(pose.get().getDistance(speakerPose));
-        });
+        }).repeatedly();
     }
 
     @Override
