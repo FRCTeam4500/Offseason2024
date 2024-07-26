@@ -22,7 +22,7 @@ public abstract class IntakeIO extends SubsystemBase implements Loggable {
     }
 
     public final Constraints CONSTRAINTS = new Constraints(270, 250);
-    public final MechanismLigament2d INTAKE_MECH = new MechanismLigament2d("Intake", 0.5, 135);
+    public final MechanismLigament2d INTAKE_MECH = new MechanismLigament2d("Intake", 0.3, 135);
 
     @Override
     public void log(LogAccess table) {
