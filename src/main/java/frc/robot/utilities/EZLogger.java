@@ -8,25 +8,35 @@ import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
+import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.util.struct.StructSerializable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import edu.wpi.first.wpilibj.RobotBase;
 
 public class EZLogger {
     private static HashMap<String, Sendable> sendables = new HashMap<>();
+    private static HashMap<String, EZSendableBuilder> builders = new HashMap<>();
     private static HashMap<String, Struct<?>> registeredSchema = new HashMap<>();
     private static HashMap<LogAccess, Loggable> loggables = new HashMap<>();
     private static LogAccess innerAccess = new LogAccess("");
+    private static DataLog log = new DataLog(RobotBase.isReal() ? "media/sda1" : "logs");
+    private static boolean logToFile = false;
+    private static boolean logToNT = true;
 
     public static void periodic() {
         for (LogAccess key : loggables.keySet()) {
             loggables.get(key).log(key);
         }
         for (Sendable sendable : sendables.values()) {
-            SendableRegistry.update(sendable);
+                SendableRegistry.update(sendable);
+        }
+        for (EZSendableBuilder builder : builders.values()) {
+            builder.logToNT = logToNT;
+            builder.logToFile = logToFile;
+            builder.update();
         }
     }
 
@@ -82,6 +92,7 @@ public class EZLogger {
 
         public void put(String key, Number value) {
             table.getEntry(key).setNumber(value);
+
         }
 
         public void put(String key, boolean value) {
@@ -97,14 +108,9 @@ public class EZLogger {
         }
 
         public void put(String key, Sendable value) {
-            if (sendables.get(key) != null) return;
-            sendables.put(key, value); 
-            NetworkTable dataTable = table.getSubTable(key);
-            SendableBuilderImpl builder = new SendableBuilderImpl();
-            builder.setTable(dataTable);
-            SendableRegistry.publish(value, builder);
-            builder.startListeners();
-            dataTable.getEntry(".name").setString(key);
+            if (sendables.get("EZLogger" + name + key) != null) return;
+            EZSendableBuilder builder = new EZSendableBuilder(key, "EZLogger/" + name, log);
+            builders.put("EZLogger" + name + key, builder);
         }
 
         @SuppressWarnings("unchecked")
