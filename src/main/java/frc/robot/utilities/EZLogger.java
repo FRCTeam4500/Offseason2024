@@ -111,6 +111,7 @@ public class EZLogger {
             if (sendables.get("EZLogger" + name + key) != null) return;
             EZSendableBuilder builder = new EZSendableBuilder(key, "EZLogger/" + name, log);
             builders.put("EZLogger" + name + key, builder);
+            value.initSendable(builder);
         }
 
         @SuppressWarnings("unchecked")

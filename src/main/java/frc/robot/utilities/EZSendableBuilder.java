@@ -71,277 +71,299 @@ public class EZSendableBuilder implements SendableBuilder {
 
     @Override
     public void addBooleanProperty(String key, BooleanSupplier getter, BooleanConsumer setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setBoolean(getter.getAsBoolean());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getBoolean(false));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "boolean");
-            log.appendBoolean(index, getter.getAsBoolean(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setBoolean(getter.getAsBoolean());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "boolean");
+                log.appendBoolean(index, getter.getAsBoolean(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getBoolean(false));
+            });
+        }
     }
 
     @Override
     public void publishConstBoolean(String key, boolean value) {
-        if (logToNT) {
-            table.getEntry(key).setBoolean(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "boolean");
-            log.appendBoolean(index, value, 0);
-        }
+        addBooleanProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addIntegerProperty(String key, LongSupplier getter, LongConsumer setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setInteger(getter.getAsLong());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getInteger(0));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "int64");
-            log.appendInteger(index, getter.getAsLong(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setInteger(getter.getAsLong());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "int64");
+                log.appendInteger(index, getter.getAsLong(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getInteger(0));
+            });
+        }
     }
 
     @Override
     public void publishConstInteger(String key, long value) {
-        if (logToNT) {
-            table.getEntry(key).setInteger(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "int64");
-            log.appendInteger(index, value, 0);
-        }
+        addIntegerProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addFloatProperty(String key, FloatSupplier getter, FloatConsumer setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setFloat(getter.getAsFloat());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getFloat(0));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "float");
-            log.appendFloat(index, getter.getAsFloat(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setFloat(getter.getAsFloat());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "float");
+                log.appendFloat(index, getter.getAsFloat(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getFloat(0));
+            });
+        }
     }
 
     @Override
     public void publishConstFloat(String key, float value) {
-        if (logToNT) {
-            table.getEntry(key).setFloat(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "float");
-            log.appendFloat(index, value, 0);
-        }
+        addFloatProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addDoubleProperty(String key, DoubleSupplier getter, DoubleConsumer setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setDouble(getter.getAsDouble());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getDouble(0));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "double");
-            log.appendDouble(index, getter.getAsDouble(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setDouble(getter.getAsDouble());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "double");
+                log.appendDouble(index, getter.getAsDouble(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getDouble(0));
+            });
+        }
     }
 
     @Override
     public void publishConstDouble(String key, double value) {
-        if (logToNT) {
-            table.getEntry(key).setDouble(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "double");
-            log.appendDouble(index, value, 0);
-        }
+        addDoubleProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addStringProperty(String key, Supplier<String> getter, Consumer<String> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setString(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getString(""));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "string");
-            log.appendString(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setString(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "string");
+                log.appendString(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getString(""));
+            });
+        }
     }
 
     @Override
     public void publishConstString(String key, String value) {
-        if (logToNT) {
-            table.getEntry(key).setString(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "string");
-            log.appendString(index, value, 0);
-        }
+        addStringProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addBooleanArrayProperty(String key, Supplier<boolean[]> getter, Consumer<boolean[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setBooleanArray(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getBooleanArray(new boolean[0]));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "boolean[]");
-            log.appendBooleanArray(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setBooleanArray(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "boolean[]");
+                log.appendBooleanArray(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getBooleanArray(new boolean[0]));
+            });
+        }
     }
 
     @Override
     public void publishConstBooleanArray(String key, boolean[] value) {
-        if (logToNT) {
-            table.getEntry(key).setBooleanArray(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "boolean[]");
-            log.appendBooleanArray(index, value, 0);
-        }
+        addBooleanArrayProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addIntegerArrayProperty(String key, Supplier<long[]> getter, Consumer<long[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setIntegerArray(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getIntegerArray(new long[0]));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "int64[]");
-            log.appendIntegerArray(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setIntegerArray(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "int64[]");
+                log.appendIntegerArray(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getIntegerArray(new long[0]));
+            });
+        }
     }
 
     @Override
     public void publishConstIntegerArray(String key, long[] value) {
-        if (logToNT) {
-            table.getEntry(key).setIntegerArray(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "int64[]");
-            log.appendIntegerArray(index, value, 0);
-        }
+        addIntegerArrayProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addFloatArrayProperty(String key, Supplier<float[]> getter, Consumer<float[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setFloatArray(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getFloatArray(new float[0]));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "float[]");
-            log.appendFloatArray(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setFloatArray(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "float[]");
+                log.appendFloatArray(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getFloatArray(new float[0]));
+            });
+        }
     }
 
     @Override
     public void publishConstFloatArray(String key, float[] value) {
-        if (logToNT) {
-            table.getEntry(key).setFloatArray(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "float[]");
-            log.appendFloatArray(index, value, 0);
-        }
+        addFloatArrayProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addDoubleArrayProperty(String key, Supplier<double[]> getter, Consumer<double[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setDoubleArray(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getDoubleArray(new double[0]));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "double[]");
-            log.appendDoubleArray(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setDoubleArray(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "double[]");
+                log.appendDoubleArray(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getDoubleArray(new double[0]));
+            });
+        }
     }
 
     @Override
     public void publishConstDoubleArray(String key, double[] value) {
-        if (logToNT) {
-            table.getEntry(key).setDoubleArray(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "double[]");
-            log.appendDoubleArray(index, value, 0);
-        }
+        addDoubleArrayProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addStringArrayProperty(String key, Supplier<String[]> getter, Consumer<String[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getEntry(key).setStringArray(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getEntry(key).getStringArray(new String[0]));
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, "string[]");
-            log.appendStringArray(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getEntry(key).setStringArray(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, "string[]");
+                log.appendStringArray(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getEntry(key).getStringArray(new String[0]));
+            });
+        }
     }
 
     @Override
     public void publishConstStringArray(String key, String[] value) {
-        if (logToNT) {
-            table.getEntry(key).setStringArray(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, "string[]");
-            log.appendStringArray(index, value, 0);
-        }
+        addStringArrayProperty(key, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
     public void addRawProperty(String key, String typeString, Supplier<byte[]> getter, Consumer<byte[]> setter) {
-        pushToNT.put(key, () -> {
-            table.getRawTopic(key).publish(typeString).accept(getter.get());
-        });
-        grabFromNT.put(key, () -> {
-            setter.accept(table.getRawTopic(key).subscribe(typeString, new byte[0]).get());
-        });
-        pushToFile.put(key, () -> {
-            int index = log.start(dir + name + key, typeString);
-            log.appendRaw(index, getter.get(), 0);
-        });
+        if (getter != null) {
+            pushToNT.put(key, () -> {
+                table.getRawTopic(key).publish(typeString).accept(getter.get());
+            });
+            pushToFile.put(key, () -> {
+                int index = log.start(dir + name + key, typeString);
+                log.appendRaw(index, getter.get(), 0);
+            });
+        }
+        if (setter != null) {
+            grabFromNT.put(key, () -> {
+                setter.accept(table.getRawTopic(key).subscribe(typeString, new byte[0]).get());
+            });
+        }
     }
 
     @Override
     public void publishConstRaw(String key, String typeString, byte[] value) {
-        if (logToNT) {
-            table.getRawTopic(key).publish(typeString).accept(value);
-        }
-        if (logToFile) {
-            int index = log.start(dir + name + key, typeString);
-            log.appendRaw(index, value, 0);
-        }
+        addRawProperty(key, typeString, () -> {
+            pushToNT.remove(key);
+            pushToFile.remove(key);
+            return value;
+        }, null);
     }
 
     @Override
