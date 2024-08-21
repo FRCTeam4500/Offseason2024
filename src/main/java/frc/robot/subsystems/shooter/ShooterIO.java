@@ -3,6 +3,7 @@ package frc.robot.subsystems.shooter;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -10,10 +11,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.EZLogger.LogAccess;
-import frc.robot.utilities.EZLogger.Loggable;
 
-public abstract class ShooterIO extends SubsystemBase implements Loggable {
+public abstract class ShooterIO extends SubsystemBase {
     private static ShooterIO instance;
     public static synchronized ShooterIO getInstance() {
         if (instance == null) {
@@ -40,15 +39,14 @@ public abstract class ShooterIO extends SubsystemBase implements Loggable {
         ANGLE_MAP.put(4.4, -14.34);
     }
 
-    @Override
-    public void log(LogAccess table) {
+    public void log() {
         ShooterState state = getState();
-        table.put("Current Tilt", state.currentTilt);
-        table.put("Target Tilt", state.targetTilt);
-        table.put("Current Loader Speed", state.currentLoaderSpeed);
-        table.put("Target Loader Speed", state.targetLoaderSpeed);
-        table.put("Current Shooter Speed", state.currentShooterSpeed);
-        table.put("Target Shooter Speed", state.targetShooterSpeed);
+        DogLog.log("Shooter/Current Tilt", state.currentTilt);
+        DogLog.log("Shooter/Target Tilt", state.targetTilt);
+        DogLog.log("Shooter/Current Loader Speed", state.currentLoaderSpeed);
+        DogLog.log("Shooter/Target Loader Speed", state.targetLoaderSpeed);
+        DogLog.log("Shooter/Current Shooter Speed", state.currentShooterSpeed);
+        DogLog.log("Shooter/Target Shooter Speed", state.targetShooterSpeed);
         SHOOTER_MECH.setAngle(state.currentTilt );
     }
 

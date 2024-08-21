@@ -1,14 +1,13 @@
 package frc.robot.subsystems.intake;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.EZLogger.LogAccess;
-import frc.robot.utilities.EZLogger.Loggable;
 
-public abstract class IntakeIO extends SubsystemBase implements Loggable {
+public abstract class IntakeIO extends SubsystemBase {
     private static IntakeIO instance;
     public static synchronized IntakeIO getInstance() {
         if (instance == null) {
@@ -24,13 +23,12 @@ public abstract class IntakeIO extends SubsystemBase implements Loggable {
     public final Constraints CONSTRAINTS = new Constraints(270, 250);
     public final MechanismLigament2d INTAKE_MECH = new MechanismLigament2d("Intake", 0.3, 135);
 
-    @Override
-    public void log(LogAccess table) {
+    public void log() {
         IntakeState state = getState();
-        table.put("Current Tilt", state.currentTilt);
-        table.put("Target Tilt", state.targetTilt);
-        table.put("Current Speed", state.currentSpeed);
-        table.put("Target Speed", state.targetSpeed);
+        DogLog.log("Intake/Current Tilt", state.currentTilt);
+        DogLog.log("Intake/Target Tilt", state.targetTilt);
+        DogLog.log("Intake/Current Speed", state.currentSpeed);
+        DogLog.log("Intake/Target Speed", state.targetSpeed);
         INTAKE_MECH.setAngle(state.currentTilt);
     }
 

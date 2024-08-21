@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utilities.EZLogger;
 
 public class Robot extends TimedRobot {
     public Robot() {
-        new RobotContainer();
+        RobotContainer container = new RobotContainer();
+        addPeriodic(container.configureLogging(), kDefaultPeriod);
     }
 
     @Override
@@ -25,6 +25,5 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
-        EZLogger.periodic();
     }
 }

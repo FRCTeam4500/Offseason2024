@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,8 +16,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.base.SwerveBaseIO;
 import frc.robot.subsystems.swerve.base.SwerveBaseReal;
 import frc.robot.subsystems.swerve.base.SwerveBaseSim;
-import frc.robot.utilities.EZLogger.LogAccess;
-import frc.robot.utilities.EZLogger.Loggable;
 
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
 
@@ -24,9 +23,11 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.ReplanningConfig;
 
+import dev.doglog.DogLog;
+
 import java.util.function.Function;
 
-public class SwerveIO extends SubsystemBase implements Loggable {
+public class SwerveIO extends SubsystemBase {
     private static SwerveIO instance;
     public static synchronized SwerveIO getInstance() {
         if (instance == null) instance = new SwerveIO();
@@ -62,13 +63,12 @@ public class SwerveIO extends SubsystemBase implements Loggable {
         field.setRobotPose(base.getPose());
     }
 
-    @Override
-    public void log(LogAccess table) {
-        table.put("Target Angle", targetAngle);
-        table.put("Speeds", base.getSpeeds());
-        table.put("Pose", base.getPose());
-        table.put("Module States", base.getStates());
-        table.put("Field", field);
+    public void log() {
+        DogLog.log("Swerve/Target Angle", targetAngle);
+        DogLog.log("Swerve/Speeds", base.getSpeeds());
+        DogLog.log("Swerve/Pose", base.getPose());
+        DogLog.log("Swerve/Module States", base.getStates());
+        SmartDashboard.putData("Field", field);
     }
 
     public Command fieldCentric(CommandXboxController xbox, Function<ChassisSpeeds, ChassisSpeeds> conversion) {

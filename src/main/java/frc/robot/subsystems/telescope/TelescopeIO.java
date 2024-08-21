@@ -1,12 +1,11 @@
 package frc.robot.subsystems.telescope;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utilities.EZLogger.LogAccess;
-import frc.robot.utilities.EZLogger.Loggable;
 
-public abstract class TelescopeIO extends SubsystemBase implements Loggable {
+public abstract class TelescopeIO extends SubsystemBase {
     private static TelescopeIO instance;
     public static synchronized TelescopeIO getInstance() {
         if (instance == null) {
@@ -19,11 +18,10 @@ public abstract class TelescopeIO extends SubsystemBase implements Loggable {
         return instance;
     }
 
-    @Override
-    public void log(LogAccess table) {
+    public void log() {
         TelescopeState state = getState();
-        table.put("Current Extension", state.currentExtension);
-        table.put("Target Extension", state.targetExtension);
+        DogLog.log("Telescope/Current Extension", state.currentExtension);
+        DogLog.log("Telescope/Target Extension", state.targetExtension);
     }
 
     public abstract Command extend(double extension);

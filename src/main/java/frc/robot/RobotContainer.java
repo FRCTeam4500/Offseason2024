@@ -6,11 +6,15 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import dev.doglog.DogLog;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -19,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.swerve.SwerveIO;
-import frc.robot.utilities.EZLogger;
-import frc.robot.utilities.EZLogger.Loggable;
 
 public class RobotContainer {
     private CommandXboxController xbox;
@@ -37,7 +39,6 @@ public class RobotContainer {
         shooter = ShooterIO.getInstance();
         swerve.setDefaultCommand(swerve.angleCentric(xbox));
         configureButtons();
-        configureLogging();
         configureAuto();
     }
 
@@ -58,19 +59,30 @@ public class RobotContainer {
         xbox.b().whileTrue(shooter.aim(() -> swerve.getState().pose().getTranslation()));
     }
 
-    private void configureLogging() {
-        EZLogger.put("Swerve", (Loggable) swerve);
-        EZLogger.put("Intake", (Loggable) intake);
-        EZLogger.put("Shooter", (Loggable) shooter);
+    public Runnable configureLogging() {
+        DogLogOptions homeOptions = new DogLogOptions(true, true, true, true, 1000);
+        DogLogOptions compOptions = new DogLogOptions(false, true, true, true, 1000);
+        DogLog.setEnabled(true);
+        DogLog.setPdh(new PowerDistribution());
+        DogLog.setOptions(homeOptions);
 
-        robotMech.getRoot("Intake", 1, 0.1).append(intake.INTAKE_MECH);
-        robotMech.getRoot("Shooter", 0.3, 0.5).append(shooter.SHOOTER_MECH);
-        EZLogger.put("Robot Mech", robotMech);
+        SmartDashboard.putData("Robot Mech", robotMech);
+        robotMech.getRoot("Intake Root", 1, 0.1).append(intake.INTAKE_MECH);
+        robotMech.getRoot("Shooter Root", 0.3, 0.5).append(shooter.SHOOTER_MECH);
+
+        return () -> {
+            DogLog.setOptions(
+                DriverStation.isFMSAttached() ? compOptions : homeOptions
+            );
+            swerve.log();
+            intake.log();
+            shooter.log();
+        };
     }
 
     private void configureAuto() {
         SendableChooser<Command> chooser = AutoBuilder.buildAutoChooser();
-        EZLogger.put("Auto Chooser", chooser);
+        SmartDashboard.putData("Auto Chooser", chooser);
         RobotModeTriggers.autonomous().whileTrue(Commands.deferredProxy(chooser::getSelected));
     }
 }
