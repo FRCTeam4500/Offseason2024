@@ -47,7 +47,7 @@ public abstract class ShooterIO extends SubsystemBase {
         DogLog.log("Shooter/Target Loader Speed", state.targetLoaderSpeed);
         DogLog.log("Shooter/Current Shooter Speed", state.currentShooterSpeed);
         DogLog.log("Shooter/Target Shooter Speed", state.targetShooterSpeed);
-        SHOOTER_MECH.setAngle(state.currentTilt );
+        SHOOTER_MECH.setAngle(state.currentTilt - 105);
     }
 
     public abstract Command aim(DoubleSupplier angle);

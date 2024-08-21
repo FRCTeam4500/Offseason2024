@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.swerve.SwerveIO;
+import frc.robot.subsystems.telescope.TelescopeIO;
 
 public class RobotContainer {
     private CommandXboxController xbox;
@@ -30,6 +31,7 @@ public class RobotContainer {
     private SwerveIO swerve;
     private IntakeIO intake;
     private ShooterIO shooter;
+    private TelescopeIO telescope;
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
         xbox = new CommandXboxController(2);
@@ -37,6 +39,7 @@ public class RobotContainer {
         swerve = SwerveIO.getInstance();
         intake = IntakeIO.getInstance();
         shooter = ShooterIO.getInstance();
+        telescope = TelescopeIO.getInstance();
         swerve.setDefaultCommand(swerve.angleCentric(xbox));
         configureButtons();
         configureAuto();
@@ -56,7 +59,8 @@ public class RobotContainer {
         xbox.rightStick().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(-90)));
         xbox.leftBumper().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(90)));
         xbox.x().onTrue(intake.extend()).onFalse(intake.handoff());
-        xbox.b().whileTrue(shooter.aim(() -> swerve.getState().pose().getTranslation()));
+        xbox.b().whileTrue(shooter.aim(() -> swerve.getState().pose().getTranslation()).alongWith(telescope.extend(0.1)));
+        xbox.b().onFalse(telescope.retract());
     }
 
     public Runnable configureLogging() {
@@ -68,7 +72,8 @@ public class RobotContainer {
 
         SmartDashboard.putData("Robot Mech", robotMech);
         robotMech.getRoot("Intake Root", 1, 0.1).append(intake.INTAKE_MECH);
-        robotMech.getRoot("Shooter Root", 0.3, 0.5).append(shooter.SHOOTER_MECH);
+        robotMech.getRoot("Telescope Root", 0.483, 0.1524).append(telescope.TELESCOPE_MECH);
+        telescope.TELESCOPE_MECH.append(shooter.SHOOTER_MECH);
 
         return () -> {
             DogLog.setOptions(
@@ -77,6 +82,7 @@ public class RobotContainer {
             swerve.log();
             intake.log();
             shooter.log();
+            telescope.log();
         };
     }
 
