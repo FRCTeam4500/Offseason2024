@@ -43,6 +43,7 @@ public class RobotContainer {
         swerve.setDefaultCommand(swerve.angleCentric(xbox));
         configureButtons();
         configureAuto();
+        configureLogging();
     }
 
     private void configureButtons() {
@@ -63,7 +64,7 @@ public class RobotContainer {
         xbox.b().onFalse(telescope.retract());
     }
 
-    public Runnable configureLogging() {
+    public void configureLogging() {
         DogLogOptions homeOptions = new DogLogOptions(true, true, true, true, 1000);
         DogLogOptions compOptions = new DogLogOptions(false, true, true, true, 1000);
         DogLog.setEnabled(true);
@@ -75,7 +76,7 @@ public class RobotContainer {
         robotMech.getRoot("Telescope Root", 0.483, 0.1524).append(telescope.TELESCOPE_MECH);
         telescope.TELESCOPE_MECH.append(shooter.SHOOTER_MECH);
 
-        return () -> {
+        Commands.run(() -> {
             DogLog.setOptions(
                 DriverStation.isFMSAttached() ? compOptions : homeOptions
             );
@@ -83,7 +84,7 @@ public class RobotContainer {
             intake.log();
             shooter.log();
             telescope.log();
-        };
+        }).ignoringDisable(true).withName("Logging Command").schedule();
     }
 
     private void configureAuto() {

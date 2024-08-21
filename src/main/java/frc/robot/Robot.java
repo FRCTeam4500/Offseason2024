@@ -11,8 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
     public Robot() {
-        RobotContainer container = new RobotContainer();
-        addPeriodic(container.configureLogging(), kDefaultPeriod);
+        new RobotContainer();
     }
 
     @Override
