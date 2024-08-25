@@ -7,8 +7,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swerve.base.SwerveBaseIO;
 import frc.robot.subsystems.swerve.base.SwerveBaseReal;
 import frc.robot.subsystems.swerve.base.SwerveBaseSim;
-
 import static frc.robot.subsystems.swerve.SwerveConstants.*;
+import static frc.robot.utilities.ExtendedMath.getSpeakerAngle;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -37,7 +35,6 @@ public class SwerveIO extends SubsystemBase {
     private SwerveBaseIO base;
     private Rotation2d targetAngle;
     private PIDController anglePID;
-    private Field2d field;
     private SwerveIO() {
         base = RobotBase.isReal() ? new SwerveBaseReal() : new SwerveBaseSim();
         targetAngle = new Rotation2d();
@@ -54,13 +51,11 @@ public class SwerveIO extends SubsystemBase {
             () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red, 
             this
         );
-        field = new Field2d();
     }
 
     @Override
     public void periodic() {
         base.periodic();
-        field.setRobotPose(base.getPose());
     }
 
     public void log() {
@@ -68,7 +63,6 @@ public class SwerveIO extends SubsystemBase {
         DogLog.log("Swerve/Speeds", base.getSpeeds());
         DogLog.log("Swerve/Pose", base.getPose());
         DogLog.log("Swerve/Module States", base.getStates());
-        SmartDashboard.putData("Field", field);
     }
 
     public Command fieldCentric(CommandXboxController xbox, Function<ChassisSpeeds, ChassisSpeeds> conversion) {
@@ -114,12 +108,26 @@ public class SwerveIO extends SubsystemBase {
                     speeds.vyMetersPerSecond,
                     calculateRotationalVelocityToTarget(targetAngle)
                 );
-        }).beforeStarting(() -> targetAngle = base.getPose().getRotation());
+        }).beforeStarting(() -> targetAngle = base.getPose().getRotation()).withName("Angle Centric Drive");
+    }
+
+    public Command speakerCentric(
+        CommandXboxController xbox
+    ) {
+        return fieldCentric(xbox, speeds -> {
+            Rotation2d target = getSpeakerAngle(getState().pose().getTranslation());
+            return new ChassisSpeeds(
+                speeds.vxMetersPerSecond,
+                speeds.vyMetersPerSecond,
+                calculateRotationalVelocityToTarget(target)
+            );
+        });
     }
 
     public Command targetAngle(Rotation2d angle) {
         return Commands.runOnce(() -> targetAngle = angle);
     }
+
 
     public Command resetGyro() {
         return Commands.runOnce(() -> {

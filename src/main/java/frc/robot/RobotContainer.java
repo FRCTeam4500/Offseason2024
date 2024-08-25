@@ -12,10 +12,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -27,19 +28,19 @@ import frc.robot.subsystems.telescope.TelescopeIO;
 
 public class RobotContainer {
     private CommandXboxController xbox;
-    private Mechanism2d robotMech;
     private SwerveIO swerve;
-    private IntakeIO intake;
-    private ShooterIO shooter;
-    private TelescopeIO telescope;
+    private Superstructure structure;
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
         xbox = new CommandXboxController(2);
-        robotMech = new Mechanism2d(1.372, 1.2192);
         swerve = SwerveIO.getInstance();
-        intake = IntakeIO.getInstance();
-        shooter = ShooterIO.getInstance();
-        telescope = TelescopeIO.getInstance();
+        structure = new Superstructure(
+            SwerveIO.getInstance(),
+            IntakeIO.getInstance(), 
+            ShooterIO.getInstance(), 
+            TelescopeIO.getInstance(), 
+            null
+        );
         swerve.setDefaultCommand(swerve.angleCentric(xbox));
         configureButtons();
         configureAuto();
@@ -47,21 +48,28 @@ public class RobotContainer {
     }
 
     private void configureButtons() {
-        Trigger rightStickUp = new Trigger(() -> xbox.getRightY() < -0.5);
-        Trigger rightStickDown = new Trigger(() -> xbox.getRightY() > 0.5);
         Trigger onBlue = new Trigger(() -> 
             DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue);
+        Trigger onRed = onBlue.negate();
+        Trigger faceForward = new Trigger(() -> xbox.getRightY() < -0.5);
+        Trigger faceBackwards = new Trigger(() -> xbox.getRightY() > 0.5);
+        Trigger faceAmpSide = xbox.rightStick();
+        Trigger faceSourceSide = xbox.leftBumper();
+        Trigger setAsZero = xbox.a();
+        Trigger intake = xbox.x();
+        Trigger aim = xbox.b();
 
-        xbox.a().onTrue(swerve.resetGyro());
-        rightStickUp.and(onBlue).or(rightStickDown.and(onBlue.negate()))
-            .onTrue(swerve.targetAngle(Rotation2d.fromDegrees(0)));
-        rightStickUp.and(onBlue.negate()).or(rightStickDown.and(onBlue))
-            .onTrue(swerve.targetAngle(Rotation2d.fromDegrees(180)));
-        xbox.rightStick().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(-90)));
-        xbox.leftBumper().onTrue(swerve.targetAngle(Rotation2d.fromDegrees(90)));
-        xbox.x().onTrue(intake.extend()).onFalse(intake.handoff());
-        xbox.b().whileTrue(shooter.aim(() -> swerve.getState().pose().getTranslation()).alongWith(telescope.extend(0.1)));
-        xbox.b().onFalse(telescope.retract());
+        setAsZero.onTrue(swerve.resetGyro());
+        faceForward.and(onBlue).onTrue(swerve.targetAngle(Rotation2d.fromDegrees(0)));
+        faceForward.and(onRed).onTrue(swerve.targetAngle(Rotation2d.fromDegrees(180)));
+        faceBackwards.and(onBlue).onTrue(swerve.targetAngle(Rotation2d.fromDegrees(180)));
+        faceBackwards.and(onRed).onTrue(swerve.targetAngle(Rotation2d.fromDegrees(0)));
+        faceAmpSide.onTrue(swerve.targetAngle(Rotation2d.fromDegrees(-90)));
+        faceSourceSide.onTrue(swerve.targetAngle(Rotation2d.fromDegrees(90)));
+        intake.onTrue(structure.startIntaking());
+        intake.onFalse(structure.handoff());
+        aim.onTrue(structure.aimSpeaker());
+        aim.onFalse(structure.stow());
     }
 
     public void configureLogging() {
@@ -71,19 +79,17 @@ public class RobotContainer {
         DogLog.setPdh(new PowerDistribution());
         DogLog.setOptions(homeOptions);
 
-        SmartDashboard.putData("Robot Mech", robotMech);
-        robotMech.getRoot("Intake Root", 1, 0.1).append(intake.INTAKE_MECH);
-        robotMech.getRoot("Telescope Root", 0.483, 0.1524).append(telescope.TELESCOPE_MECH);
-        telescope.TELESCOPE_MECH.append(shooter.SHOOTER_MECH);
+        Field2d field = new Field2d();
+        SmartDashboard.putData("Field", field);
+        SmartDashboard.putData("Scheduler", CommandScheduler.getInstance());
 
         Commands.run(() -> {
             DogLog.setOptions(
                 DriverStation.isFMSAttached() ? compOptions : homeOptions
             );
             swerve.log();
-            intake.log();
-            shooter.log();
-            telescope.log();
+            structure.log();
+            field.setRobotPose(swerve.getState().pose());
         }).ignoringDisable(true).withName("Logging Command").schedule();
     }
 

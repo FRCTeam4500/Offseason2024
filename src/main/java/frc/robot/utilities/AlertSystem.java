@@ -10,16 +10,16 @@ public class AlertSystem {
     private AlertSystem() {}
     private static ArrayList<Alert> errors = new ArrayList<>();
     private static ArrayList<Alert> warnings = new ArrayList<>();
-    private static ArrayList<Alert> infos = new ArrayList<>();
+    private static ArrayList<Alert> info = new ArrayList<>();
 
-    public static void start() {
+    static {
         SmartDashboard.putData("Alerts", new Sendable() {
             @Override
             public void initSendable(SendableBuilder builder) {
                 builder.setSmartDashboardType("Alerts");
                 builder.addStringArrayProperty("errors", () -> getText(errors), null);
                 builder.addStringArrayProperty("warnings", () -> getText(warnings), null);
-                builder.addStringArrayProperty("infos", () -> getText(infos), null);
+                builder.addStringArrayProperty("info", () -> getText(info), null);
             }
         });
     }
@@ -33,7 +33,7 @@ public class AlertSystem {
                 warnings.add(alert);
                 break;
             case Info:
-                infos.add(alert);
+                info.add(alert);
                 break;
         }
     }
@@ -47,7 +47,7 @@ public class AlertSystem {
                 warnings.remove(alert);
                 break;
             case Info:
-                infos.remove(alert);
+                info.remove(alert);
                 break;
         }
     }
